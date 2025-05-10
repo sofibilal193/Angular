@@ -2,26 +2,32 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { RegisterModel } from '../Models/register';
-import { Router } from '@angular/router';
+import { RegisterModel } from '../models/register';
+import { LoginModel } from '../models/login';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private apiUrl = 'https://your-api-endpoint.com'; 
+  private apiUrl = 'https://192.168.1.81:7171/api'; 
   private authToken: string | null = null; 
 
 constructor(
     private http:HttpClient,
-    private router: Router,
- 
   ) { }
   
   // Register method
   register(formValue: RegisterModel): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/register`, formValue).pipe(
+    var response = this.http.post<any>(`${this.apiUrl}/Auth/register`, formValue).pipe(
+      catchError(this.handleError)
+    );
+    return response;
+  }
+
+   // Login method
+  login(formValue: LoginModel): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Auth/login`, formValue).pipe(
       catchError(this.handleError)
     );
   }
@@ -41,14 +47,6 @@ constructor(
   private removeToken(): void {
     localStorage.removeItem('authToken');
     this.authToken = null;
-  }
-
-  // Login method
-  login(username: string, password: string): Observable<any> {
-    const loginData = { username, password };
-    return this.http.post<any>(`${this.apiUrl}/login`, loginData).pipe(
-      catchError(this.handleError)
-    );
   }
 
   // Logout method
