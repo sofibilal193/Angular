@@ -4,13 +4,14 @@ import { LoginComponent } from './Components/Auth/login/login.component';
 import { AuthService } from './Services/auth.service';
 import { HomeComponent } from './Components/home/home.component';
 import { NgIf } from '@angular/common';
+import { UserListComponent } from "./Components/Auth/User/user-list/user-list.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  imports: [NgIf,LoginComponent, HomeComponent],
+  imports: [UserListComponent],
 })
 export class AppComponent implements OnInit {
   title = 'my-first-app';

@@ -1,7 +1,9 @@
 <p>Hello {{ title }}</p>
 
-<app-home *ngIf="isLoggedIn; else loginTpl"></app-home>
+<!-- <app-home *ngIf="isLoggedIn; else loginTpl"></app-home>
 
 <ng-template #loginTpl>
   <app-login></app-login>
-</ng-template>
+</ng-template> -->
+
+<app-user-list></app-user-list>
