@@ -1,35 +1,54 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { RegisterModel } from '../models/register';
 import { LoginModel } from '../models/login';
+import { LocalStorageService } from './local-storage.service';
+import { Router } from '@angular/router';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
+  private apiUrl = 'https://192.168.1.81:7171/api';
+  private authToken: string | null = null;
 
-  private apiUrl = 'https://192.168.1.81:7171/api'; 
-  private authToken: string | null = null; 
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private localStorage: LocalStorageService
+  ) {}
 
-constructor(
-    private http:HttpClient,
-  ) { }
-  
+autoLogin(): Observable<any> {
+  const token = this.localStorage.getAuthToken(); 
+  if (!token) return of(null);
+
+  return this.http.post<any>(`${this.apiUrl}/Auth/validate-token`, { token }).pipe(
+    tap(user => {
+      this.localStorage.setUser(JSON.stringify(user));
+    }),
+    catchError(err => {
+      console.warn('Invalid or expired token', err);
+      this.logout();
+      return of(null);
+    })
+  );
+}
+
   // Register method
   register(formValue: RegisterModel): Observable<any> {
-    var response = this.http.post<any>(`${this.apiUrl}/Auth/register`, formValue).pipe(
-      catchError(this.handleError)
-    );
+    var response = this.http
+      .post<any>(`${this.apiUrl}/Auth/register`, formValue)
+      .pipe(catchError(this.handleError));
     return response;
   }
 
-   // Login method
+  // Login method
   login(formValue: LoginModel): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/Auth/login`, formValue).pipe(
-      catchError(this.handleError)
-    );
+    return this.http
+      .post<any>(`${this.apiUrl}/Auth/login`, formValue)
+      .pipe(catchError(this.handleError));
   }
 
   // Store the JWT token in localStorage or sessionStorage
@@ -38,26 +57,22 @@ constructor(
     this.authToken = token;
   }
 
-  // Retrieve the JWT token from localStorage
-  private getToken(): string | null {
-    return localStorage.getItem('authToken');
-  }
-
-  // Remove the JWT token from localStorage
-  private removeToken(): void {
-    localStorage.removeItem('authToken');
-    this.authToken = null;
-  }
-
   // Logout method
-  logout(): void {
-    this.removeToken();
+  logout() {
+    this.localStorage.clear();
+    this.onRefresh();
+    this.router.navigate(['/login']);
   }
 
-  // Check if the user is authenticated (if the token exists and is valid)
-  isAuthenticated(): boolean {
-    const token = this.getToken();
-    return token ? true : false;
+  private async onRefresh() {
+    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+      return false;
+    };
+    const currentUrl = this.router.url + '?';
+    return this.router.navigateByUrl(currentUrl).then(() => {
+      this.router.navigated = false;
+      this.router.navigate([this.router.url]);
+    });
   }
 
   // Optionally, you can add token validation to check if the token is still valid
