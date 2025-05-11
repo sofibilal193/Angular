@@ -10,7 +10,7 @@ import { UserListComponent } from "./Components/Auth/User/user-list/user-list.co
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  imports: [UserListComponent],
+  imports: [UserListComponent, LoginComponent, RegisterComponent],
 })
 export class AppComponent implements OnInit {
   title = 'my-first-app';
@@ -19,8 +19,8 @@ export class AppComponent implements OnInit {
   private authService = inject(AuthService);
 
   async ngOnInit(): Promise<void> {
-    this.authService.autoLogin().subscribe(user => {
-      this.isLoggedIn = !!user;
-    });
+    // this.authService.autoLogin().subscribe(user => {
+    //   this.isLoggedIn = !!user;
+    // });
   }
 }
