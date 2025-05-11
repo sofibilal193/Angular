@@ -17,7 +17,7 @@ export class AuthService {
   isAuthenticated() {
     return true;
   }
-  private apiUrl = 'https://192.168.1.81:7171/api';
+  private apiUrl = 'https://192.168.1.81:5092/api';
   private authToken: string | null = null;
 
   constructor(
@@ -63,7 +63,7 @@ export class AuthService {
  async GetUsers(page: number, pageSize: number, search?: any, sortColumn?: string, role?: string, sortDirection?: string): Promise<Observable<any>> {
     var sort = sortDirection === 'asc'? sortColumn : '-' + sortColumn;
     var response = this.http
-      .get<any>(`${this.apiUrl}/users/all?page=${page}&pageSize=${pageSize}&sort=${sort}&search=${search}&role=${role}`)
+      .get<any>(`${this.apiUrl}/Account/users?page=${page}&pageSize=${pageSize}&sort=${sort}&search=${search}&role=${role}`)
       .pipe(catchError(this.handleError));
     return response;
   }
