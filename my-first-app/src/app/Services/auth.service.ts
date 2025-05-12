@@ -3,11 +3,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { RegisterModel } from '../models/register';
-import { LoginModel } from '../models/login';
 import { LocalStorageService } from './local-storage.service';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { LoggedInUser } from '../models/loggedInUser';
+import { LoginModel } from '../models/login';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +25,7 @@ export class AuthService {
     email: '',
   };
 
-  private apiUrl = 'https://192.168.1.81:5092/api';
+  private apiUrl = 'https://localhost:5092/api';
 
   constructor(
     private http: HttpClient,
@@ -68,10 +68,9 @@ export class AuthService {
   }
 
   // Register method
-  async GetUserAsync(userId: number): Promise<Observable<any>> {
-    debugger
+  GetUserAsync(userId: number): Observable<any> {
     var response = this.http
-      .get<any>(`${this.apiUrl}/Account/Users?userId=${userId}`)
+      .get<any>(`${this.apiUrl}/Account/Users/${userId}`)
       .pipe(catchError(this.handleError));
     return response;
   }

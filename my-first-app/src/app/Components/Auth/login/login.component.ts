@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -11,6 +11,7 @@ import { LoginModel } from '../../../models/login';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { LocalStorageService } from '../../../Services/local-storage.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -27,7 +28,8 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private localStorageService: LocalStorageService,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService
   ) {
     // Define the form group with all necessary form controls and validations
     this.loginForm = this.fb.group({
@@ -48,28 +50,34 @@ export class LoginComponent implements OnInit {
         password,
         rememberMe,
       };
-      debugger;
 
       var token = this.localStorageService.getAuthToken();
 
       if (token) {
-          var userId =  this.authService.userDetailFromToken().userId;
-          var user =  this.authService.GetUserAsync(userId);
-      }
+        var userId = this.authService.userDetailFromToken().userId;
+        this.authService.GetUserAsync(userId).subscribe({
+          next: (userResponse) => {
+            debugger;
+            this.localStorageService.setUser(userResponse);
 
-      this.authService.login(formValue).subscribe(
-        (response) => {
-          this.localStorageService.setAuthToken(
-            response.data.token
-          );
-          console.log('Registration successful', response);
-          // this.router.navigate(['/login']);
-        },
-        (error) => {
-          this.errorMessage = 'Registration failed. Please try again.';
-          console.error('Registration failed', error);
-        }
-      );
+            this.toastr.success(
+              `Login successful!`,
+              `Welcome ${userResponse.firstName}`
+            );
+          },
+        });
+      } else {
+        this.authService.login(formValue).subscribe({
+          next: (response) => {
+            this.localStorageService.setAuthToken(response.data.token);
+            this.toastr.success('Login successful!', 'Welcome');
+          },
+          error: (error) => {
+            this.errorMessage = 'Registration failed. Please try again.';
+            this.toastr.error('Login Failed!', 'Failed');
+          },
+        });
+      }
     } else {
       this.errorMessage = 'Please fill in all fields correctly';
     }
