@@ -16,12 +16,16 @@ export class AuthInterceptor implements HttpInterceptor {
     request: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
-    debugger;
-    let token = this.localStorageService.getAuthToken();
-    let newRequest: HttpRequest<any>;
-    newRequest = request.clone({
-      headers: request.headers.set('Authorization', 'Bearer ' + token),
-    });
-    return next.handle(newRequest);
+    const token = this.localStorageService.getAuthToken();
+
+    if (token) {
+      const newRequest = request.clone({
+        headers: request.headers.set('Authorization', `Bearer ${token}`),
+      });
+      return next.handle(newRequest);
+    }
+
+    // Handle requests without token
+    return next.handle(request);
   }
 }

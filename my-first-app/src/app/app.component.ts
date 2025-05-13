@@ -1,16 +1,20 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { RegisterComponent } from './Components/Auth/register/register.component';
-import { LoginComponent } from './Components/Auth/login/login.component';
 import { AuthService } from './Services/auth.service';
-import { HomeComponent } from './Components/home/home.component';
-import { NgIf } from '@angular/common';
-import { UserListComponent } from "./Components/Auth/User/user-list/user-list.component";
+import { LoaderComponent } from './components/loader/loader.component';
+import { RegisterComponent } from './components/auth/register/register.component';
+import { LoginComponent } from './components/auth/login/login.component';
+import { UserListComponent } from './components/auth/user/user-list/user-list.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  imports: [UserListComponent, LoginComponent, RegisterComponent],
+  imports: [
+    LoginComponent,
+    RegisterComponent,
+    LoaderComponent,
+    UserListComponent,
+  ],
 })
 export class AppComponent implements OnInit {
   title = 'my-first-app';

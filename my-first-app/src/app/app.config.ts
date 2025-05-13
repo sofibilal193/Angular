@@ -11,10 +11,11 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { JwtModule } from '@auth0/angular-jwt';
 import { ToastrModule } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { LoaderInterceptor } from './interceptors/loader.interceptor';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,13 +28,21 @@ export const appConfig: ApplicationConfig = {
         timeOut: 3000,
       })
     ),
-    importProvidersFrom(JwtModule.forRoot({})),
+    importProvidersFrom(
+      JwtModule.forRoot({
+        config: {
+          allowedDomains: ['localhost:4200'],
+          disallowedRoutes: ['http://localhost:4200/api/account/login'],
+        },
+      })
+    ),
     provideAnimations(),
-    // provideHttpClient(withInterceptorsFromDi()),
-    // {
-    //   provide: HTTP_INTERCEPTORS,
-    //   useClass: AuthInterceptor,
-    //   multi: true,
-    // },
+    provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+    // { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true },
   ],
 };
