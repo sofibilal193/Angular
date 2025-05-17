@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgFor } from '@angular/common';
-import { AuthService } from '../../../../Services/auth.service';
+import { AuthService } from '../../../../Services/Auth/auth.service';
 import { Role } from '../../../../models/user';
 import { FormsModule } from '@angular/forms';
 
@@ -46,27 +46,27 @@ export class UserListComponent implements OnInit {
   search: string = '';
   sortDirection: string = '↓';
 
-  constructor(private http: HttpClient, private authService: AuthService) { }
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadUsers();
   }
 
   async loadUsers(): Promise<void> {
-    (await this.authService
-      .GetUsers(
+    (
+      await this.authService.GetUsers(
         this.page,
         this.pageSize,
         this.search,
         this.sortColumn,
         this.roleFilter,
         this.sortDirection
-      ))
-      .subscribe((response: ApiResponse) => {
-        this.users = response.items;
-        this.page = response.page;
-        this.totalPages = response.totalPages;
-      });
+      )
+    ).subscribe((response: ApiResponse) => {
+      this.users = response.items;
+      this.page = response.page;
+      this.totalPages = response.totalPages;
+    });
   }
 
   ApplyFilter(role: string) {

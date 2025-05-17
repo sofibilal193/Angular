@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { AuthService } from './Services/auth.service';
+import { AuthService } from './Services/Auth/auth.service';
 import { Router, RouterModule } from '@angular/router';
-import { UserListComponent } from "./components/auth/user/user-list/user-list.component";
+import { UserListComponent } from './components/auth/user/user-list/user-list.component';
 import { NgIf } from '@angular/common';
 
 @Component({
@@ -17,15 +17,13 @@ export class AppComponent implements OnInit {
   private router = inject(Router);
 
   async ngOnInit(): Promise<void> {
-    debugger
+    debugger;
 
-    this.authService.autoLogin().subscribe(user => {
-
+    this.authService.autoLogin().subscribe((user) => {
       if (user === null) {
         this.authService.loggedInUser.isLoggedIn = false;
         this.router.navigate(['/login']);
-      }
-      else {
+      } else {
         this.authService.loggedInUser.isLoggedIn = true;
       }
     });

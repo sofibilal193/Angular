@@ -5,7 +5,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthService } from '../../../Services/auth.service';
+import { AuthService } from '../../../Services/Auth/auth.service';
 import { Router } from '@angular/router';
 import { LoginModel } from '../../../models/login';
 import { CommonModule } from '@angular/common';
@@ -26,7 +26,6 @@ export class LoginComponent implements OnInit {
   userId: number = 0;
   showForgotPasswordPopup = false;
 
-
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -42,7 +41,7 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {}
 
   // Form submission
   onSubmit(): void {
@@ -55,7 +54,7 @@ export class LoginComponent implements OnInit {
     const { email, password, rememberMe } = this.loginForm.value;
     const formValue: LoginModel = { email, password, rememberMe };
 
-    this.authService.login(formValue).subscribe({
+    this.authService.loginUserAsync(formValue).subscribe({
       next: (response) => {
         const token = response?.data?.token;
 
@@ -76,7 +75,6 @@ export class LoginComponent implements OnInit {
       },
     });
   }
-
 
   openForgotPasswordPopup() {
     this.showForgotPasswordPopup = true;

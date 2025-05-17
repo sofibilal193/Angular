@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../Services/auth.service';
+import { AuthService } from '../../../Services/Auth/auth.service';
 import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { RegisterModel } from '../../../models/register';
@@ -48,8 +48,15 @@ export class RegisterComponent {
   // Form submission
   onSubmit(): void {
     if (this.registerForm.valid) {
-      const { firstName, lastName,phoneNumber,dob, email, password, confirmPassword } =
-        this.registerForm.value;
+      const {
+        firstName,
+        lastName,
+        phoneNumber,
+        dob,
+        email,
+        password,
+        confirmPassword,
+      } = this.registerForm.value;
       const formValue: RegisterModel = {
         firstName,
         lastName,
@@ -70,8 +77,7 @@ export class RegisterComponent {
           console.error('Registration failed', error);
         }
       );
-    } 
-    else {
+    } else {
       this.errorMessage = 'Please fill in all fields correctly';
     }
   }

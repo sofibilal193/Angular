@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, retry, tap } from 'rxjs/operators';
-import { RegisterModel } from '../models/register';
-import { LocalStorageService } from './local-storage.service';
+import { RegisterModel } from '../../models/register';
+import { LocalStorageService } from '../local-storage.service';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { LoggedInUser } from '../models/loggedInUser';
-import { LoginModel } from '../models/login';
-import { User } from '../models/user';
+import { LoggedInUser } from '../../models/loggedInUser';
+import { LoginModel } from '../../models/login';
+import { User } from '../../models/user';
+import { ApiClientService } from '../apiClient/api-client.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,14 +26,16 @@ export class AuthService {
     email: '',
   };
 
-  private apiUrl = 'https://localhost:5092/api';
-
   constructor(
-    private http: HttpClient,
     private router: Router,
     private localStorage: LocalStorageService,
-    private jwtHelper: JwtHelperService
-  ) { }
+    private jwtHelper: JwtHelperService,
+    private apiClient: ApiClientService
+  ) {}
+
+  isAuthenticated(): Boolean {
+    return this.loggedInUser.isLoggedIn;
+  }
 
   autoLogin(): Observable<User | null> {
     const token = this.localStorage.getAuthToken();
@@ -45,35 +47,26 @@ export class AuthService {
     return this.GetUserAsync(newUserId);
   }
 
-
-
   // Register method
   register(formValue: RegisterModel): Observable<any> {
-    var response = this.http
-      .post<any>(`${this.apiUrl}/Account/register`, formValue)
-      .pipe(catchError(this.handleError));
-    return response;
+    return this.apiClient.Account.register(formValue).pipe(
+      catchError(this.handleError)
+    );
   }
 
   // Login method
-  login(formValue: LoginModel): Observable<any> {
-    return this.http
-      .post<any>(`${this.apiUrl}/Account/login`, formValue)
-      .pipe(catchError(this.handleError));
+  loginUserAsync(formValue: LoginModel): Observable<any> {
+    return this.apiClient.Account.login(formValue).pipe(
+      catchError(this.handleError)
+    );
   }
 
   GetUserAsync(userId: number): Observable<User> {
-    var response = this.http
-      .get<User>(`${this.apiUrl}/Account/Users/${userId}`)
-      .pipe(
-        catchError(this.handleError)
-      );
-    debugger
-    return response;
+    return this.apiClient.Account.getUser(userId).pipe(
+      catchError(this.handleError)
+    );
   }
 
-
-  // Register method
   async GetUsers(
     page: number,
     pageSize: number,
@@ -83,12 +76,13 @@ export class AuthService {
     sortDirection?: string
   ): Promise<Observable<any>> {
     var sort = sortDirection === 'asc' ? sortColumn : '-' + sortColumn;
-    var response = this.http
-      .get<any>(
-        `${this.apiUrl}/Account/users?page=${page}&pageSize=${pageSize}&sort=${sort}&search=${search}&role=${role}`
-      )
-      .pipe(catchError(this.handleError));
-    return response;
+    return this.apiClient.Account.getUsers(
+      page,
+      pageSize,
+      search,
+      sort,
+      role
+    ).pipe(catchError(this.handleError));
   }
 
   // Store the JWT token in localStorage or sessionStorage
@@ -119,14 +113,6 @@ export class AuthService {
     throw error;
   }
 
-  isAuthenticated() {
-    if (this.localStorage.getAuthToken()) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   userDetailFromToken(): LoggedInUser | null {
     this.loggedInUser.token = this.localStorage.getAuthToken();
 
@@ -150,20 +136,20 @@ export class AuthService {
     // this.surname = surname.split(' ')[1];
     this.loggedInUser.roles =
       decodedToken[
-      'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
       ];
     this.loggedInUser.role =
       decodedToken[
-      'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
       ];
     this.loggedInUser.userId = parseInt(
       decodedToken[
-      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
       ]
     );
     this.loggedInUser.email =
       decodedToken[
-      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
+        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
       ];
     // this.userName = name.split(' ')[0] + ' ' + surname.split(' ')[1];
 
