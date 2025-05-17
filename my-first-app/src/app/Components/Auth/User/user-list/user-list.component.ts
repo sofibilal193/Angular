@@ -46,7 +46,7 @@ export class UserListComponent implements OnInit {
   search: string = '';
   sortDirection: string = '↓';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.loadUsers();

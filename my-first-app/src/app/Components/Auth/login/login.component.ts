@@ -24,6 +24,8 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   errorMessage: string = '';
   userId: number = 0;
+  showForgotPasswordPopup = false;
+
 
   constructor(
     private fb: FormBuilder,
@@ -40,71 +42,47 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   // Form submission
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      const { email, password, rememberMe } = this.loginForm.value;
-      const formValue: LoginModel = {
-        email,
-        password,
-        rememberMe,
-      };
-
-      const token = this.localStorageService.getAuthToken();
-
-      if (token) {
-        const userDetails = this.authService.userDetailFromToken();
-        this.userId = userDetails?.userId ?? 0;
-      }
-      debugger;
-
-      if (this.userId != 0 && !isNaN(this.userId)) {
-        this.authService.GetUserAsync(this.userId).subscribe({
-          next: (userResponse) => {
-            this.localStorageService.setUser(userResponse);
-            this.toastr.success(
-              `Login successful!`,
-              `Welcome ${userResponse.firstName}`
-            );
-          },
-          error: () => {
-            this.toastr.error('Failed to retrieve user data.', 'Error');
-          },
-        });
-      } else {
-        this.authService.login(formValue).subscribe({
-          next: (response) => {
-            this.localStorageService.setAuthToken(response.data.token);
-            this.toastr.success('Login successful!', 'Welcome');
-
-            // Immediately extract user info from the token and fetch user data
-            const newUserId = this.authService.userDetailFromToken()?.userId;
-            if (newUserId != null && !isNaN(newUserId)) {
-              this.authService.GetUserAsync(newUserId).subscribe({
-                next: (userResponse) => {
-                  this.localStorageService.setUser(userResponse);
-                  this.toastr.success(
-                    `User data loaded!`,
-                    `Welcome ${userResponse.firstName}`
-                  );
-                },
-                error: () => {
-                  this.toastr.error('Could not load user data.', 'Warning');
-                },
-              });
-            }
-          },
-          error: (error) => {
-            this.errorMessage = 'Login failed. Please try again.';
-            this.toastr.error('Login Failed!', 'Error');
-          },
-        });
-      }
-    } else {
+    if (this.loginForm.invalid) {
       this.errorMessage = 'Please fill in all fields correctly';
       this.toastr.warning('Invalid form data', 'Warning');
+      return;
     }
+
+    const { email, password, rememberMe } = this.loginForm.value;
+    const formValue: LoginModel = { email, password, rememberMe };
+
+    this.authService.login(formValue).subscribe({
+      next: (response) => {
+        const token = response?.data?.token;
+
+        if (token) {
+          this.localStorageService.setAuthToken(token);
+          this.toastr.success('Login successful!', 'Welcome');
+          this.authService.loggedInUser.isLoggedIn = true;
+          this.router.navigate(['/']);
+        } else {
+          this.errorMessage = 'Invalid response from server.';
+          this.toastr.error('Login Failed!', 'Error');
+        }
+      },
+      error: (error) => {
+        console.error('Login error:', error);
+        this.errorMessage = 'Login failed. Please try again.';
+        this.toastr.error('Login Failed!', 'Error');
+      },
+    });
+  }
+
+
+  openForgotPasswordPopup() {
+    this.showForgotPasswordPopup = true;
+  }
+
+  closeForgotPasswordPopup() {
+    this.showForgotPasswordPopup = false;
   }
 }

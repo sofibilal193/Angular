@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, retry, tap } from 'rxjs/operators';
 import { RegisterModel } from '../models/register';
 import { LocalStorageService } from './local-storage.service';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { LoggedInUser } from '../models/loggedInUser';
 import { LoginModel } from '../models/login';
+import { User } from '../models/user';
 
 @Injectable({
   providedIn: 'root',
@@ -32,25 +33,19 @@ export class AuthService {
     private router: Router,
     private localStorage: LocalStorageService,
     private jwtHelper: JwtHelperService
-  ) {}
+  ) { }
 
-  // autoLogin(): Observable<any> {
-  //   const token = this.localStorage.getAuthToken();
-  //   if (!token) return of(null);
+  autoLogin(): Observable<User | null> {
+    const token = this.localStorage.getAuthToken();
+    if (!token) return of(null);
 
-  //   return this.http
-  //     .post<any>(`${this.apiUrl}/Auth/validate-token`, { token })
-  //     .pipe(
-  //       tap((user) => {
-  //         this.localStorage.setUser(JSON.stringify(user));
-  //       }),
-  //       catchError((err) => {
-  //         console.warn('Invalid or expired token', err);
-  //         this.logout();
-  //         return of(null);
-  //       })
-  //     );
-  // }
+    const newUserId = this.userDetailFromToken()?.userId;
+    if (newUserId == null || isNaN(newUserId)) return of(null);
+
+    return this.GetUserAsync(newUserId);
+  }
+
+
 
   // Register method
   register(formValue: RegisterModel): Observable<any> {
@@ -67,13 +62,16 @@ export class AuthService {
       .pipe(catchError(this.handleError));
   }
 
-  // Register method
-  GetUserAsync(userId: number): Observable<any> {
+  GetUserAsync(userId: number): Observable<User> {
     var response = this.http
-      .get<any>(`${this.apiUrl}/Account/Users/${userId}`)
-      .pipe(catchError(this.handleError));
+      .get<User>(`${this.apiUrl}/Account/Users/${userId}`)
+      .pipe(
+        catchError(this.handleError)
+      );
+    debugger
     return response;
   }
+
 
   // Register method
   async GetUsers(
@@ -133,7 +131,7 @@ export class AuthService {
     this.loggedInUser.token = this.localStorage.getAuthToken();
 
     if (
-      this.loggedInUser.token ||
+      this.loggedInUser.token &&
       this.jwtHelper.isTokenExpired(this.loggedInUser.token)
     ) {
       return null;
@@ -152,20 +150,20 @@ export class AuthService {
     // this.surname = surname.split(' ')[1];
     this.loggedInUser.roles =
       decodedToken[
-        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+      'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
       ];
     this.loggedInUser.role =
       decodedToken[
-        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+      'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
       ];
     this.loggedInUser.userId = parseInt(
       decodedToken[
-        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
       ]
     );
     this.loggedInUser.email =
       decodedToken[
-        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
+      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
       ];
     // this.userName = name.split(' ')[0] + ' ' + surname.split(' ')[1];
 
