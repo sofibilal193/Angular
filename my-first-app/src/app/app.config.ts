@@ -21,7 +21,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(),
     importProvidersFrom(
       ToastrModule.forRoot({
         positionClass: 'toast-top-right',
@@ -32,7 +31,7 @@ export const appConfig: ApplicationConfig = {
       JwtModule.forRoot({
         config: {
           allowedDomains: ['localhost:4200'],
-          disallowedRoutes: ['http://localhost:4200/api/account/login'],
+          disallowedRoutes: ['https://localhost:5092/api/Account/login'],
         },
       })
     ),
@@ -43,6 +42,6 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true,
     },
-    // { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true },
   ],
 };

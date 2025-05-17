@@ -129,8 +129,16 @@ export class AuthService {
     }
   }
 
-  userDetailFromToken(): LoggedInUser {
+  userDetailFromToken(): LoggedInUser | null {
     this.loggedInUser.token = this.localStorage.getAuthToken();
+
+    if (
+      this.loggedInUser.token ||
+      this.jwtHelper.isTokenExpired(this.loggedInUser.token)
+    ) {
+      return null;
+    }
+
     let decodedToken = this.jwtHelper.decodeToken(this.loggedInUser.token);
     // let name =
     //   decodedToken[

@@ -4,17 +4,13 @@ import { LoaderComponent } from './components/loader/loader.component';
 import { RegisterComponent } from './components/auth/register/register.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { UserListComponent } from './components/auth/user/user-list/user-list.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  imports: [
-    LoginComponent,
-    RegisterComponent,
-    LoaderComponent,
-    UserListComponent,
-  ],
+  imports: [RouterModule],
 })
 export class AppComponent implements OnInit {
   title = 'my-first-app';
