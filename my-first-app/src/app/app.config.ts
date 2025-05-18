@@ -18,6 +18,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { LoaderInterceptor } from './interceptors/loader.interceptor';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AuthService } from './Services/Auth/auth.service';
+import { NavBarComponent } from './components/navbar/navbar.component';
 
 export function initAppFactory(authService: AuthService): () => void {
   return () => authService.init();
@@ -26,6 +27,7 @@ export function initAppFactory(authService: AuthService): () => void {
 export const appConfig: ApplicationConfig = {
   providers: [
     AuthService,
+    NavBarComponent,
     {
       provide: APP_INITIALIZER,
       useFactory: initAppFactory,
@@ -36,8 +38,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     importProvidersFrom(
       ToastrModule.forRoot({
-        positionClass: 'toast-top-right',
-        timeOut: 3000,
+        positionClass: 'toast-bottom-right',
+        preventDuplicates: true,
+        timeOut: 2000,
       })
     ),
     importProvidersFrom(

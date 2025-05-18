@@ -1,12 +1,59 @@
-<!-- <nav>
-  <ul>
-    <li *ngIf="user$ | async as user; else loggedOut">
-      Welcome, {{ user.firstName }}!
-      <button (click)="logout()">Logout</button>
-    </li>
-    <ng-template #loggedOut>
-      <li><a routerLink="/login">Login</a></li>
-      <li><a routerLink="/register">Register</a></li>
-    </ng-template>
-  </ul>
-</nav> -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+  <a class="navbar-brand" routerLink="/">my-angular-app</a>
+
+  <!-- Toggle button for mobile view -->
+  <button
+    class="navbar-toggler"
+    type="button"
+    data-bs-toggle="collapse"
+    data-bs-target="#navbarContent"
+    aria-controls="navbarContent"
+    aria-expanded="false"
+    aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <!-- Navbar links -->
+  <div class="collapse navbar-collapse" id="navbarContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/" routerLinkActive="active">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/about"
+          routerLinkActive="active">About</a>
+      </li>
+      <li *ngIf="!loggedInUser?.isLoggedIn" class="nav-item">
+        <a class="nav-link" routerLink="/login"
+          routerLinkActive="active">Login</a>
+      </li>
+      <li *ngIf="!loggedInUser?.isLoggedIn" class="nav-item">
+        <a class="nav-link" routerLink="/register"
+          routerLinkActive="active">Register</a>
+      </li>
+    </ul>
+
+    <!-- User Circle Dropdown -->
+    <!-- User Circle Dropdown -->
+    <div class="dropdown">
+      <button
+        class="rounded-circle bg-light text-dark border-0 d-flex justify-content-center align-items-center"
+        style="width: 40px; height: 40px; font-weight: bold; cursor: pointer;"
+        id="userDropdown"
+        data-bs-toggle="dropdown"
+        aria-expanded="false">
+        {{ loggedInUser?.isLoggedIn ? loggedInUser.firstName.charAt(0) : '?' }}
+      </button>
+
+      <ul class="dropdown-menu dropdown-menu-end mt-2"
+        aria-labelledby="userDropdown">
+        <li *ngIf="loggedInUser?.isLoggedIn">
+          <a class="dropdown-item" (click)="logout()">Logout</a>
+        </li>
+        <li *ngIf="!loggedInUser?.isLoggedIn">
+          <a class="dropdown-item" routerLink="/login">Login</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

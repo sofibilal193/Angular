@@ -32,7 +32,6 @@ export class AuthService {
   ) {}
 
   async init(): Promise<void> {
-    debugger;
     const token = this.localStorage.getAuthToken();
     if (token) {
       const tokenUser = this.extractToken();
@@ -109,6 +108,15 @@ export class AuthService {
   // Logout method
   logout() {
     this.localStorage.clear();
+    this.loggedInUser = {
+      userId: 0,
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      roles: [],
+      isLoggedIn: false,
+    };
     this.onRefresh();
     this.router.navigate(['/login']);
   }
