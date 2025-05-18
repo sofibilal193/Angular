@@ -132,10 +132,8 @@ export class AuthService {
     });
   }
 
-  // Optionally, you can add token validation to check if the token is still valid
   private handleError(error: any): Observable<never> {
     console.error('API Error:', error);
-    // Optionally: show user-friendly messages using a toast or alert service
     return throwError(() => error);
   }
 

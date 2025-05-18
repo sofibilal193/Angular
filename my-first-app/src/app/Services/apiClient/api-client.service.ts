@@ -32,7 +32,7 @@ export class ApiClientService implements IApiClient {
       search?: any,
       sort?: string,
       role?: string
-    ): Observable<User> =>
+    ): Observable<any> =>
       this.http.get<any>(
         `${this.apiUrl}/Account/users?page=${page}&pageSize=${pageSize}&sort=${sort}&search=${search}&role=${role}`
       ),
@@ -45,11 +45,8 @@ export class ApiClientService implements IApiClient {
     },
   };
 
-  // Home = {
-  //   getStats: (): Observable<HomeStats> =>
-  //     this.http.get<HomeStats>('/api/home/stats'),
-
-  //   getBanners: (): Observable<Banner[]> =>
-  //     this.http.get<Banner[]>('/api/home/banners')
-  // };
+  Dashboard = {
+    getTools: (): Observable<any> =>
+      this.http.get<any>(`${this.apiUrl}/Dashboard/Users/tools`),
+  };
 }

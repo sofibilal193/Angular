@@ -3,11 +3,12 @@ import { AuthService } from '../../Services/Auth/auth.service';
 import { Router } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { UserListComponent } from '../auth/user/user-list/user-list.component';
+import { DashboardComponent } from '../dashboard/dashboard.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [UserListComponent, NgIf],
+  imports: [UserListComponent, DashboardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })

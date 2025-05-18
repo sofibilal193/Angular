@@ -11,8 +11,7 @@ export interface IApiClient {
     updateProfile(userId: number, data: Partial<User>): Observable<User>;
     logout(): void;
   };
-  // Home: {
-  //     getStats(): Observable<HomeStats>;
-  //     getBanners(): Observable<Banner[]>;
-  // };
+  Dashboard: {
+    getTools(): Observable<any>;
+  };
 }

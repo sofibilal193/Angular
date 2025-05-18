@@ -47,7 +47,10 @@ export const appConfig: ApplicationConfig = {
       JwtModule.forRoot({
         config: {
           allowedDomains: ['localhost:4200'],
-          disallowedRoutes: ['https://localhost:5092/api/Account/login'],
+          disallowedRoutes: [
+            'https://localhost:5092/api/Account/login',
+            'https://localhost:5092/api/Account/register',
+          ],
         },
       })
     ),

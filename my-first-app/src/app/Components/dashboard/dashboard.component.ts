@@ -1,0 +1,13 @@
+import { Component, inject, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css'],
+  imports: [],
+})
+export class DashboardComponent implements OnInit {
+  constructor() {}
+
+  ngOnInit() {}
+}
