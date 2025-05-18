@@ -10,26 +10,13 @@ import { NgIf } from '@angular/common';
   styleUrl: './app.component.css',
   imports: [RouterModule, UserListComponent, NgIf],
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'my-first-app';
 
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  async ngOnInit(): Promise<void> {
-    debugger;
-
-    this.authService.autoLogin().subscribe((user) => {
-      if (user === null) {
-        this.authService.loggedInUser.isLoggedIn = false;
-        this.router.navigate(['/login']);
-      } else {
-        this.authService.loggedInUser.isLoggedIn = true;
-      }
-    });
-  }
-
   get isLoggedIn(): boolean {
-    return this.authService.loggedInUser?.isLoggedIn === true;
+    return this.authService.isAuthenticated();
   }
 }

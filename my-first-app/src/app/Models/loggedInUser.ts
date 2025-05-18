@@ -1,11 +1,9 @@
 export interface LoggedInUser {
-  name: string;
-  surname: string;
-  userName: string;
-  role: any;
-  roles: any[];
-  token: any;
-  isLoggedIn: boolean;
   userId: number;
+  firstName: string;
+  lastName: string;
   email: string;
+  phoneNumber: string;
+  roles: any[];
+  isLoggedIn: boolean;
 }

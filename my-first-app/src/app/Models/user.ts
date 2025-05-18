@@ -4,7 +4,7 @@ export interface User {
   lastName: string;
   email: string;
   phoneNumber: string;
-  role: string;
+  roles: any[];
   profilePhoto: string | null;
 }
 
@@ -21,5 +21,5 @@ interface ApiResponse {
 export enum Role {
   Admin = 'Admin',
   User = 'User',
-  Manager = 'Manager'
+  Manager = 'Manager',
 }

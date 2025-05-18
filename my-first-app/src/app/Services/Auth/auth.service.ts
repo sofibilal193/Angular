@@ -1,29 +1,27 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { firstValueFrom, Observable, of, throwError } from 'rxjs';
 import { catchError, retry, tap } from 'rxjs/operators';
 import { RegisterModel } from '../../models/register';
 import { LocalStorageService } from '../local-storage.service';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { LoggedInUser } from '../../models/loggedInUser';
 import { LoginModel } from '../../models/login';
 import { User } from '../../models/user';
 import { ApiClientService } from '../apiClient/api-client.service';
+import { LoggedInUser } from '../../models/loggedInUser';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   loggedInUser: LoggedInUser = {
-    name: '',
-    surname: '',
-    userName: '',
-    role: null,
-    roles: [],
-    token: null,
-    isLoggedIn: false,
     userId: 0,
+    firstName: '',
+    lastName: '',
     email: '',
+    phoneNumber: '',
+    roles: [],
+    isLoggedIn: false,
   };
 
   constructor(
@@ -33,18 +31,39 @@ export class AuthService {
     private apiClient: ApiClientService
   ) {}
 
-  isAuthenticated(): Boolean {
-    return this.loggedInUser.isLoggedIn;
+  async init(): Promise<void> {
+    debugger;
+    const token = this.localStorage.getAuthToken();
+    if (token) {
+      const tokenUser = this.extractToken();
+      if (tokenUser) {
+        try {
+          const user = await firstValueFrom(
+            this.GetUserAsync(tokenUser.userId)
+          );
+          this.loggedInUser = {
+            userId: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            roles: user.roles,
+            isLoggedIn: true,
+          };
+        } catch (err) {
+          console.error('Failed to fetch user:', err);
+          this.router.navigate(['/login']);
+        }
+      } else {
+        this.router.navigate(['/login']);
+      }
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
-  autoLogin(): Observable<User | null> {
-    const token = this.localStorage.getAuthToken();
-    if (!token) return of(null);
-
-    const newUserId = this.userDetailFromToken()?.userId;
-    if (newUserId == null || isNaN(newUserId)) return of(null);
-
-    return this.GetUserAsync(newUserId);
+  isAuthenticated(): boolean {
+    return this.loggedInUser.isLoggedIn;
   }
 
   // Register method
@@ -61,12 +80,14 @@ export class AuthService {
     );
   }
 
+  // Get User by Id
   GetUserAsync(userId: number): Observable<User> {
     return this.apiClient.Account.getUser(userId).pipe(
       catchError(this.handleError)
     );
   }
 
+  // Paged List of Users
   async GetUsers(
     page: number,
     pageSize: number,
@@ -83,11 +104,6 @@ export class AuthService {
       sort,
       role
     ).pipe(catchError(this.handleError));
-  }
-
-  // Store the JWT token in localStorage or sessionStorage
-  private storeToken(token: string): void {
-    localStorage.setItem('authToken', token);
   }
 
   // Logout method
@@ -110,20 +126,19 @@ export class AuthService {
 
   // Optionally, you can add token validation to check if the token is still valid
   private handleError(error: any): Observable<never> {
-    throw error;
+    console.error('API Error:', error);
+    // Optionally: show user-friendly messages using a toast or alert service
+    return throwError(() => error);
   }
 
-  userDetailFromToken(): LoggedInUser | null {
-    this.loggedInUser.token = this.localStorage.getAuthToken();
+  extractToken(): LoggedInUser | null {
+    let token = this.localStorage.getAuthToken();
 
-    if (
-      this.loggedInUser.token &&
-      this.jwtHelper.isTokenExpired(this.loggedInUser.token)
-    ) {
+    if (token && this.jwtHelper.isTokenExpired(token)) {
       return null;
     }
 
-    let decodedToken = this.jwtHelper.decodeToken(this.loggedInUser.token);
+    let decodedToken = this.jwtHelper.decodeToken(token);
     // let name =
     //   decodedToken[
     //     'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
@@ -138,10 +153,10 @@ export class AuthService {
       decodedToken[
         'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
       ];
-    this.loggedInUser.role =
-      decodedToken[
-        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
-      ];
+    // this.loggedInUser.role =
+    //   decodedToken[
+    //     'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+    //   ];
     this.loggedInUser.userId = parseInt(
       decodedToken[
         'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'

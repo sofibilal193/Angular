@@ -1,4 +1,5 @@
 import {
+  APP_INITIALIZER,
   ApplicationConfig,
   importProvidersFrom,
   provideZoneChangeDetection,
@@ -16,9 +17,21 @@ import { ToastrModule } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { LoaderInterceptor } from './interceptors/loader.interceptor';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { AuthService } from './Services/Auth/auth.service';
+
+export function initAppFactory(authService: AuthService): () => void {
+  return () => authService.init();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    AuthService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initAppFactory,
+      deps: [AuthService],
+      multi: true,
+    },
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     importProvidersFrom(

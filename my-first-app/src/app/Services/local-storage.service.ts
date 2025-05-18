@@ -20,7 +20,7 @@ export class LocalStorageService {
     return localStorage.setItem(GlobalConstants.TOKEN_KEY, data);
   }
 
-  getAuthToken() {
+  getAuthToken(): any {
     return localStorage.getItem(GlobalConstants.TOKEN_KEY) ?? null;
   }
 
